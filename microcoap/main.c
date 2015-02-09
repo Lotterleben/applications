@@ -61,11 +61,9 @@ int main(void)
         coap_packet_t pkt;
 
         n = socket_base_recvfrom(sock_rcv, buf, sizeof(buf), 0, &sa_rcv, &len);
-#ifdef DEBUG /* coap_dump() etc are only defined if DEBUG is 1 (for now)... */
         printf("Received packet: ");
         coap_dump(buf, n, true);
         printf("\n");
-#endif
 
         if (0 != (rc = coap_parse(&pkt, buf, n)))
             printf("Bad packet rc=%d\n", rc);
@@ -73,23 +71,19 @@ int main(void)
         {
             size_t rsplen = sizeof(buf);
             coap_packet_t rsppkt;
-#ifdef DEBUG
             printf("content:\n");
             coap_dumpPacket(&pkt);
-#endif
             coap_handle_req(&scratch_buf, &pkt, &rsppkt);
 
             if (0 != (rc = coap_build(buf, &rsplen, &rsppkt)))
                 printf("coap_build failed rc=%d\n", rc);
             else
             {
-#ifdef DEBUG
                 printf("Sending packet: ");
                 coap_dump(buf, rsplen, true);
                 printf("\n");
                 printf("content:\n");
                 coap_dumpPacket(&rsppkt);
-#endif
                 socket_base_sendto(sock_rcv, buf, rsplen, 0, &sa_rcv, sizeof(sa_rcv));
             }
         }
