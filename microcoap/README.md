@@ -18,7 +18,8 @@ This is a bit tricky, so maybe this walkthrough will help:
 This will set up two tap devices connected by a bridge. our RIOT application and 
 marz will each listen at one of these devices, and communicate over the bridge.
 
-3. Open two terminal windows.
+3. Open two terminal windows.  
+
 **In window #1**, start the microcoap-example application:
 
     cd applications/microcoap
