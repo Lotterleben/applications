@@ -4,7 +4,7 @@ Microcoap example
 This is a small microcoap example application. It provides a server which only 
 answers GET requests to the resource /foo/bar. 
 
-## Usage
+## Setup & Testing
 You may use the Copper Firefox Plugin to send GET requests and use 
 [marz](https://github.com/sgso/marz) to tunnel them to the RIOT native thread.  
 This is a bit tricky, so maybe this walkthrough will help:
