@@ -10,7 +10,7 @@ RIOTBASE ?= $(CURDIR)/../../RIOT
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:
-CFLAGS += -DRIOT #-DMICROCOAP_DEBUG #-DENABLE_DEBUG
+CFLAGS += -DRIOT -DMICROCOAP_DEBUG #-DENABLE_DEBUG
 
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
@@ -18,6 +18,9 @@ QUIET ?= 1
 USEPKG=microcoap
 
 USEMODULE += config
+USEMODULE += shell
+USEMODULE += shell_commands
+USEMODULE += uart0
 
 ifeq ($(strip $(BOARD)),native)
 	USEMODULE += nativenet

@@ -22,10 +22,14 @@
 #include "udp.h"
 #include "net_help.h"
 #include "net_if.h"
+#include "board_uart0.h"
+#include "shell.h"
+#include "shell_commands.h"
+#include "thread.h"
 
 #include <coap.h>
 
-#define ENABLE_DEBUG    (0)
+#define ENABLE_DEBUG    (1)
 #include "debug.h"
 
 #define PORT 5683
@@ -33,9 +37,12 @@
 
 #define RCV_MSG_Q_SIZE      (64)
 
-msg_t msg_q[RCV_MSG_Q_SIZE];
-static ipv6_addr_t prefix;
+static void *_microcoap_server_thread(void *arg);
 
+msg_t msg_q[RCV_MSG_Q_SIZE];
+char _rcv_stack_buf[KERNEL_CONF_STACKSIZE_MAIN];
+
+static ipv6_addr_t prefix;
 int sock_rcv, if_id;
 sockaddr6_t sa_rcv;
 uint8_t buf[BUFSZ];
@@ -43,7 +50,6 @@ uint8_t scratch_raw[BUFSZ];
 coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
 
 static void _init_tlayer(void);
-static void _init_socket(void);
 static uint16_t get_hw_addr(void);
 
 int main(void)
@@ -52,7 +58,63 @@ int main(void)
     DEBUG("Starting example microcoap server...\n");
 
     _init_tlayer();
-    _init_socket();
+    thread_create(_rcv_stack_buf, KERNEL_CONF_STACKSIZE_MAIN, PRIORITY_MAIN, CREATE_STACKTEST, _microcoap_server_thread, NULL ,"_microcoap_server_thread");
+
+    /* Open the UART0 for the shell */
+    posix_open(uart0_handler_pid, 0);
+
+    printf("\n\t\t\tWelcome to RIOT\n\n");
+
+    shell_t shell;
+    shell_init(&shell, NULL, UART0_BUFSIZE, uart0_readc, uart0_putc);
+
+    shell_run(&shell);
+
+    return 0;
+}
+
+static uint16_t get_hw_addr(void)
+{
+    //return sysconfig.id;
+
+    /* For compliance with marz (https://github.com/sgso/marz), which enables us
+     * to tunnel requests sent with the Copper plugin for Firefox.
+     * THIS WILL BREAK STUFF IF YOU RUN MORE THAN ONE RIOT.
+     * (return sysconfig.id instead, and ditch Copper) */
+    return 1;
+}
+
+/* init transport layer & routing stuff*/
+static void _init_tlayer()
+{
+    msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
+
+    net_if_set_hardware_address(0, get_hw_addr());
+
+    printf("initializing 6LoWPAN...\n");
+
+    ipv6_addr_init(&prefix, 0xABCD, 0xEF12, 0, 0, 0, 0, 0, 0);
+    if_id = 0; // >1 interface isn't supported anyway, so there
+
+    sixlowpan_lowpan_init_interface(if_id);
+}
+
+static void *_microcoap_server_thread(void *arg)
+{
+
+    printf("initializing receive socket...\n");
+
+    sa_rcv = (sockaddr6_t) { .sin6_family = AF_INET6,
+               .sin6_port = HTONS(PORT) };
+
+    sock_rcv = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+  
+    if (-1 == socket_base_bind(sock_rcv, &sa_rcv, sizeof(sa_rcv))) {
+        printf("Error: bind to receive socket failed!\n");
+        socket_base_close(sock_rcv);
+    }
+
+    printf("Ready to receive requests.\n");
 
     while(1)
     {
@@ -87,39 +149,5 @@ int main(void)
                 socket_base_sendto(sock_rcv, buf, rsplen, 0, &sa_rcv, sizeof(sa_rcv));
             }
         }
-    }
-    return 0;
-}
-
-static uint16_t get_hw_addr(void)
-{
-    return sysconfig.id;
-}
-
-/* init transport layer & routing stuff*/
-static void _init_tlayer()
-{
-    msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
-
-    net_if_set_hardware_address(0, get_hw_addr());
-
-    printf("initializing 6LoWPAN...\n");
-
-    ipv6_addr_init(&prefix, 0xABCD, 0xEF12, 0, 0, 0, 0, 0, 0);
-    if_id = 0; // >1 interface isn't supported anyway, so there
-
-    sixlowpan_lowpan_init_interface(if_id);
-}
-
-static void _init_socket() 
-{
-    sa_rcv = (sockaddr6_t) { .sin6_family = AF_INET6,
-               .sin6_port = HTONS(PORT) };
-
-    int sock_rcv = socket_base_socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-    
-    if (-1 == socket_base_bind(sock_rcv, &sa_rcv, sizeof(sa_rcv))) {
-        printf("Error: bind to receive socket failed!\n");
-        socket_base_close(sock_rcv);
     }
 }
