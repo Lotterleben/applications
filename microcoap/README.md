@@ -107,6 +107,6 @@ request and the reply our microcoap-example is sending:
 
 And finally, the big grey ``Payload`` box in your Firefox window should read:
 
-    ``1337``
+    1337
 
 If this all works, you're good to go! :)
