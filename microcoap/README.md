@@ -77,7 +77,7 @@ clicked GET, **window #2** should read
     [UDP6 5683] Received 14 data bytes from ('::1', 54685): Relaying through 54685 to RiotEndpoint(hwaddr=1, ipv6='fe80::ff:fe00:1', port=5683)
     [TAP] Received 12 data bytes on port 54685: Relaying through 5683 to IP6Endpoint(ipv6='::1', port=54685)
 
-,**window 1** should supply you with detailed information about the received 
+**window #1** should supply you with detailed information about the received 
 request and the reply our microcoap-example is sending:
 
     > Received packet: 40 01 0B EC B3 66 6F 6F 03 62 61 72 C1 02
