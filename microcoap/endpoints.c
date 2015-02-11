@@ -6,8 +6,8 @@
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
-uint16_t response_len = 1500;
-static char response[response_len] = "";
+#define MAX_RESPONSE_LEN 1500
+static uint8_t response[MAX_RESPONSE_LEN] = "";
 
 static const coap_endpoint_path_t path = {2, {"foo", "bar"}};
 
