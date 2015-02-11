@@ -11,18 +11,19 @@ static uint8_t response[MAX_RESPONSE_LEN] = "";
 
 static const coap_endpoint_path_t path = {2, {"foo", "bar"}};
 
-void create_response(void)
+void create_response_payload(const uint8_t *buffer)
 {
-    strncat(response, "1337", response_len-5);
+    char *response = "1337";
+    memcpy((void*)buffer, response, strlen(response));
 }
 
 /* The handler which handles the path /foo/bar */
 static int handle_get_response(coap_rw_buffer_t *scratch, const coap_packet_t *inpkt, coap_packet_t *outpkt, uint8_t id_hi, uint8_t id_lo)
 {
     DEBUG("[endpoints]  %s()\n",  __func__);
-    create_response();
+    create_response_payload(response);
     /* NOTE: COAP_RSPCODE_CONTENT only works in a packet answering a GET. */
-    return coap_make_response(scratch, outpkt, (const uint8_t *)response, strlen(response),
+    return coap_make_response(scratch, outpkt, response, strlen((char*)response),
                               id_hi, id_lo, &inpkt->tok, COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
 }
 
