@@ -4,14 +4,14 @@ Microcoap example
 This is a small microcoap example application. It provides a server which only 
 answers GET requests to the resource /foo/bar. 
 
-## Setup & Testing
-You may use the Copper Firefox Plugin to send GET requests and use 
-[marz](https://github.com/sgso/marz) to tunnel them to the RIOT native thread.  
-This is a bit tricky, so maybe this walkthrough will help:
+## Setup
+
+You can use [marz](https://github.com/sgso/marz) to tunnel CoAP messages into the RIOT native thread. This is a bit tricky, so maybe this walkthrough will help:
 
 0. Build this application.
 1. Install the copper plugin in your Firefox browser.
-2. In your RIOT directury, run
+2. Run `sudo apt-get install bridge-utils`
+3. In your RIOT directury, run
 
     ./cpu/native/tapsetup.sh create 2
 
@@ -50,7 +50,11 @@ You should see output similar to this.
 
     >
 
-**In window #2**, install and run marz:
+**In window #2**, first install Python development headers by running
+
+    sudo apt-get install python-dev
+
+Afterwards you can install and run marz:
     
     pip install --user Twisted && 
     pip install --user bidict && 
@@ -66,7 +70,35 @@ You should see output similar to this.
     Listening on UDP ports: [5683, 2222]
     Listening on tap interface tap0 with MAC address 9a:80:a3:fc:93:18
 
-4. Open Firefox and enter
+## Testing
+
+The "Copper" firefox plugin is a convenient way to test CoAP endpoints. In the absence of a GUI you can also use Python to send test requests.
+
+### Using python(3)
+
+First, make sure Python 3 is installed, clone `aiocoap` into a directory of your choice and then change into it:
+
+    git clone git@github.com:chrysn/aiocoap.git &&
+        cd aiocoap
+
+Open the `clientGET.py` file and change the line that reads
+
+    request.set_request_uri(<some url>)
+
+to
+
+    request.set_request_uri('coap://[::1]/foo/bar')
+
+Then run `clientGET.py`, which should print the following:
+
+    $ ./clientGET.py
+    Result: 2.05 Content
+    b'1337'
+
+
+### Using the Firefox Copper plugin
+
+Open Firefox and enter
 
     coap://[::1]:5683/foo/bar
 
