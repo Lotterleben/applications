@@ -6,7 +6,7 @@
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
-const uint16_t response_len = 1500;
+uint16_t response_len = 1500;
 static char response[response_len] = "";
 
 static const coap_endpoint_path_t path = {2, {"foo", "bar"}};
