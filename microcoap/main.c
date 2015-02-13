@@ -80,8 +80,11 @@ static uint16_t get_hw_addr(void)
 
     /* For compliance with marz (https://github.com/sgso/marz), which enables us
      * to tunnel requests sent with the Copper plugin for Firefox.
+     * marz.config's recipient fields, which correlate to the RIOT's hardware address,
+     * are set to 1 by default. Returning 1 enables out-of-the-box functionality, but:
      * THIS WILL BREAK STUFF IF YOU RUN MORE THAN ONE RIOT.
-     * (return sysconfig.id instead, and ditch Copper) */
+     * (return sysconfig.id instead, and change the "recipient" fields accordingly,
+     * or ditch marz and Copper) */
     return 1;
 }
 
