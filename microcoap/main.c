@@ -26,6 +26,7 @@
 #include "shell.h"
 #include "shell_commands.h"
 #include "thread.h"
+#include "posix_io.h"
 
 #include <coap.h>
 
@@ -88,7 +89,7 @@ static uint16_t get_hw_addr(void)
 }
 
 /* init transport layer & routing stuff*/
-static void _init_tlayer()
+static void _init_tlayer(void)
 {
     msg_init_queue(msg_q, RCV_MSG_Q_SIZE);
 
@@ -104,6 +105,7 @@ static void _init_tlayer()
 
 static void *_microcoap_server_thread(void *arg)
 {
+    (void)arg; /* make the compiler shut up about unused variables */
 
     printf("initializing receive socket...\n");
 
@@ -153,4 +155,6 @@ static void *_microcoap_server_thread(void *arg)
             }
         }
     }
+
+    return NULL;
 }
