@@ -19,14 +19,23 @@ CFLAGS += -DRIOT -DMICROCOAP_DEBUG
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
+# pull in the microcoap package
 USEPKG=microcoap
 
-USEMODULE += config
-USEMODULE += uart0
+# Include packages that pull up and auto-init the link layer.
+# NOTE: 6LoWPAN will be included if IEEE802.15.4 devices are present
+USEMODULE += gnrc_netif_default
+USEMODULE += auto_init_gnrc_netif
+# Specify the mandatory networking modules for socket communication via UDP
+USEMODULE += gnrc_ipv6_default
+USEMODULE += gnrc_udp
+USEMODULE += gnrc_conn_udp
+USEMODULE += posix_sockets
 
-USEMODULE += nativenet
 
-USEMODULE += sixlowpan
-USEMODULE += udp
+#USEMODULE += config
+#USEMODULE += uart0
+
+#USEMODULE += nativenet TODO: what happened to nativenet?
 
 include $(RIOTBASE)/Makefile.include
