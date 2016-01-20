@@ -32,6 +32,9 @@ USEMODULE += gnrc_udp
 USEMODULE += gnrc_conn_udp
 USEMODULE += posix_sockets
 
+# Add the shell and some commands
+USEMODULE += shell
+USEMODULE += shell_commands
 
 #USEMODULE += config
 #USEMODULE += uart0
